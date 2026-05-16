@@ -1,0 +1,84 @@
+name: poiscrapper-v3
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: poi-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-poiscrapper}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-poiscrapper_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-poiscrapper}
+      TZ: ${TZ:-Asia/Jakarta}
+      PGTZ: ${TZ:-Asia/Jakarta}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - poi_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-poiscrapper} -d ${POSTGRES_DB:-poiscrapper}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: poi-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - poi_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Optional: jalanin lewat `docker compose --profile app up` kalau mau
+  # full containerised. Default-nya FE/BE kita run di host untuk hot reload.
+  api:
+    profiles: ["app"]
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: poi-api
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      POSTGRES_HOST: postgres
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-poiscrapper}:${POSTGRES_PASSWORD:-poiscrapper_dev}@postgres:5432/${POSTGRES_DB:-poiscrapper}
+      DATABASE_URL_SYNC: postgresql+psycopg://${POSTGRES_USER:-poiscrapper}:${POSTGRES_PASSWORD:-poiscrapper_dev}@postgres:5432/${POSTGRES_DB:-poiscrapper}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    ports:
+      - "${API_PORT:-8000}:8000"
+
+  worker:
+    profiles: ["app"]
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: poi-worker
+    restart: unless-stopped
+    command: ["celery", "-A", "app.worker", "worker", "--loglevel=info", "--concurrency=2"]
+    env_file: [.env]
+    environment:
+      POSTGRES_HOST: postgres
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-poiscrapper}:${POSTGRES_PASSWORD:-poiscrapper_dev}@postgres:5432/${POSTGRES_DB:-poiscrapper}
+      DATABASE_URL_SYNC: postgresql+psycopg://${POSTGRES_USER:-poiscrapper}:${POSTGRES_PASSWORD:-poiscrapper_dev}@postgres:5432/${POSTGRES_DB:-poiscrapper}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+volumes:
+  poi_pg_data:
+  poi_redis_data:

@@ -1,0 +1,134 @@
+[project]
+name = "poiscrapper-api"
+version = "0.0.1"
+description = "PoiScrapper v3 backend — FastAPI orchestrator + Celery scraper worker"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "UNLICENSED" }
+authors = [{ name = "PoiScrapper Team" }]
+
+dependencies = [
+    # Web framework
+    "fastapi[standard]>=0.115.6",
+    "uvicorn[standard]>=0.32.1",
+    "starlette>=0.41.3",
+    "python-multipart>=0.0.19",
+    "websockets>=13.1",
+
+    # Settings & validation
+    "pydantic>=2.10.3",
+    "pydantic-settings>=2.7.0",
+    "email-validator>=2.2.0",
+
+    # Database
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "psycopg[binary]>=3.2.3",
+    "alembic>=1.14.0",
+
+    # Queue
+    "celery[redis]>=5.4.0",
+    "redis>=5.2.1",
+
+    # Logging & utilities
+    "loguru>=0.7.3",
+    "python-ulid>=3.0.0",
+    "orjson>=3.10.12",
+    "httpx>=0.28.1",
+    "tenacity>=9.0.0",
+
+    # LLM (Phase 1)
+    "google-genai>=0.3.0",
+]
+
+[project.optional-dependencies]
+scraping = [
+    "playwright>=1.49.1",
+    "beautifulsoup4>=4.12.3",
+    "selectolax>=0.3.27",
+    "lxml>=5.3.0",
+    "rapidfuzz>=3.10.1",
+    "protego>=0.4.0",
+]
+export = [
+    "openpyxl>=3.1.5",
+    "pandas>=2.2.3",
+]
+dev = [
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.25.0",
+    "pytest-httpserver>=1.1.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.4",
+    "mypy>=1.14.0",
+    "types-beautifulsoup4>=4.12.0.20241020",
+    "ipython>=8.31.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+# ---------- Ruff ----------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",      # pycodestyle + pyflakes
+    "I",                # isort
+    "B",                # bugbear
+    "UP",               # pyupgrade
+    "SIM",              # simplify
+    "C4",               # comprehensions
+    "PL",               # pylint
+    "RUF",              # ruff-specific
+    "ASYNC",            # async best practice
+    "N",                # pep8-naming
+]
+ignore = [
+    "E501",             # line length handled by formatter
+    "PLR0913",          # too many args (FastAPI routes)
+    "PLR2004",          # magic values (pragmatic)
+    "B008",             # `Depends()` di default arg = pattern resmi FastAPI
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = ["PLR2004", "S101"]
+"alembic/**/*" = ["E402", "N999"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ---------- mypy ----------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+disallow_untyped_decorators = false
+warn_unused_ignores = true
+show_error_codes = true
+exclude = ["alembic/versions", "tests/fixtures"]
+
+[[tool.mypy.overrides]]
+module = ["celery.*", "kombu.*"]
+ignore_missing_imports = true
+
+# ---------- pytest ----------
+[tool.pytest.ini_options]
+minversion = "8.0"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers --strict-config"
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:pydantic.*",
+    "ignore::PendingDeprecationWarning",
+]

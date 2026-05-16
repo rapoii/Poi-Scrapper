@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://poiscrapper.local/schema/intent.json",
+  "title": "Intent",
+  "description": "Hasil parsing prompt user oleh LLM intent parser.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["entity_type", "required_fields", "language"],
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "description": "Jenis entity yang ingin di-scrape, misal 'doctor', 'restaurant', 'school'."
+    },
+    "entity_label": {
+      "type": "string",
+      "description": "Label yang lebih manusiawi untuk UI, misal 'Dokter di RS Siloam Karawaci'."
+    },
+    "target_scope": {
+      "type": "object",
+      "description": "Konteks target yang dibatasi user, misal institusi, kota, rentang waktu.",
+      "additionalProperties": true,
+      "properties": {
+        "institution": { "type": "string" },
+        "location": { "type": "string" },
+        "country": { "type": "string" }
+      }
+    },
+    "required_fields": {
+      "type": "array",
+      "description": "Daftar field yang wajib di-scrape (di-infer + optional user override).",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "data_type"],
+        "properties": {
+          "name": { "type": "string" },
+          "label": { "type": "string" },
+          "data_type": {
+            "type": "string",
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "date",
+              "datetime",
+              "url",
+              "email",
+              "phone",
+              "array",
+              "object"
+            ]
+          },
+          "required": { "type": "boolean", "default": true },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "filters": {
+      "type": "array",
+      "description": "Kondisi filter tambahan, misal 'exclude dokter umum'.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["expression"],
+        "properties": {
+          "field": { "type": "string" },
+          "op": {
+            "type": "string",
+            "enum": [
+              "eq",
+              "neq",
+              "contains",
+              "not_contains",
+              "gt",
+              "gte",
+              "lt",
+              "lte",
+              "in",
+              "not_in"
+            ]
+          },
+          "value": {},
+          "expression": { "type": "string" }
+        }
+      }
+    },
+    "output_format": {
+      "type": "string",
+      "enum": ["csv", "xlsx", "json"],
+      "default": "csv"
+    },
+    "seed_urls": {
+      "type": "array",
+      "description": "URL kandidat hasil tebakan LLM (boleh kosong; bisa dilengkapi di tahap discovery).",
+      "items": { "type": "string", "format": "uri" }
+    },
+    "language": {
+      "type": "string",
+      "description": "Bahasa prompt user (ISO 639-1).",
+      "enum": ["id", "en"]
+    },
+    "notes": {
+      "type": "string",
+      "description": "Catatan bebas hasil interpretasi LLM untuk ditampilkan ke user."
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://poiscrapper.local/schema/record.json",
+  "title": "Record",
+  "description": "Satu record hasil scraping. Schema field `data` bebas (JSONB) sesuai intent.required_fields.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data", "source_url", "scraped_at"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "job_id": { "type": "string", "format": "uuid" },
+    "source_id": { "type": ["string", "null"], "format": "uuid" },
+    "data": {
+      "type": "object",
+      "description": "Dynamic key-value. Key sesuai intent.required_fields[].name.",
+      "additionalProperties": true
+    },
+    "field_confidences": {
+      "type": "object",
+      "description": "Confidence LLM per field (0..1).",
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+    },
+    "source_url": { "type": "string", "format": "uri" },
+    "completeness_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "filled_fields / total_required_fields."
+    },
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Rata-rata tertimbang field_confidences."
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Hash deterministik untuk dedup (nama+alamat+normalized phone)."
+    },
+    "scraped_at": { "type": "string", "format": "date-time" },
+    "deleted_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "poiscrapper-v3",
+  "version": "0.0.1",
+  "private": true,
+  "description": "PoiScrapper v3 — advanced natural-language scraping tool",
+  "packageManager": "pnpm@11.0.9",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @poi/web dev",
+    "dev:web": "pnpm --filter @poi/web dev",
+    "build": "pnpm --filter @poi/web build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css,mjs}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css,mjs}\"",
+    "test": "pnpm -r --if-present test",
+    "clean": "pnpm -r exec rm -rf node_modules .next dist build"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "typescript": "^5.7.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

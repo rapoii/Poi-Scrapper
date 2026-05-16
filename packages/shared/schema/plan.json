@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://poiscrapper.local/schema/plan.json",
+  "title": "ScrapingPlan",
+  "description": "Rencana scraping yang direview user sebelum run. Gabungan Intent + daftar Source + estimasi.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["intent", "sources"],
+  "properties": {
+    "intent": { "$ref": "intent.json" },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "source.json" }
+    },
+    "estimated_record_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Estimasi jumlah record yang bisa di-scrape (heuristik)."
+    },
+    "estimated_duration_sec": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Estimasi durasi total eksekusi dalam detik."
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Peringatan dari planner (robots.txt, PII risk, dll).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["level", "message"],
+        "properties": {
+          "level": { "type": "string", "enum": ["info", "warn", "error"] },
+          "message": { "type": "string" },
+          "ref": { "type": "string" }
+        }
+      }
+    }
+  }
+}

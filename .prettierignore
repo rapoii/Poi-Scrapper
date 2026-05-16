@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+build
+coverage
+*.md
+**/__pycache__
+**/.venv
+**/*.py

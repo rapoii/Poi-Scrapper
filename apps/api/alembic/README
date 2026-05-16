@@ -1,0 +1,6 @@
+Generic single-database configuration with an async-friendly sync DSN for migrations.
+
+Setiap migrasi wajib:
+- Ada `upgrade()` + `downgrade()` yang simetris.
+- `server_default` untuk kolom non-nullable baru di tabel existing.
+- Ditest lokal: `uv run alembic upgrade head` lalu `uv run alembic downgrade -1`.

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://poiscrapper.local/schema/job.json",
+  "title": "Job",
+  "description": "Representasi job scraping untuk ditampilkan di UI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "prompt", "status", "created_at"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "user_id": { "type": ["string", "null"], "format": "uuid" },
+    "prompt": { "type": "string" },
+    "parsed_plan": { "$ref": "plan.json" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "planning", "running", "paused", "done", "failed", "partial"]
+    },
+    "total_records": { "type": "integer", "minimum": 0, "default": 0 },
+    "avg_completeness": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "avg_confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "started_at": { "type": ["string", "null"], "format": "date-time" },
+    "finished_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

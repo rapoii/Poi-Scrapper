@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://poiscrapper.local/schema/ws_event.json",
+  "title": "WsEvent",
+  "description": "Payload WebSocket yang di-push backend ke client selama job jalan.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "job_id", "ts"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "job_status",
+        "source_status",
+        "record_upsert",
+        "record_delete",
+        "progress",
+        "log",
+        "error",
+        "done"
+      ]
+    },
+    "job_id": { "type": "string", "format": "uuid" },
+    "ts": { "type": "string", "format": "date-time" },
+    "payload": {
+      "description": "Payload spesifik per type. FE cek berdasarkan type.",
+      "additionalProperties": true
+    }
+  }
+}

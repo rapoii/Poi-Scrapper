@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://poiscrapper.local/schema/source.json",
+  "title": "Source",
+  "description": "Target URL yang akan di-scrape beserta strategy & status.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["url", "strategy", "status"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "job_id": { "type": "string", "format": "uuid" },
+    "url": { "type": "string", "format": "uri" },
+    "domain": { "type": "string" },
+    "title": { "type": "string" },
+    "strategy": {
+      "type": "string",
+      "enum": ["static_html", "headless", "api", "pdf", "docx"],
+      "description": "Metode fetch + parse yang dipakai."
+    },
+    "reliability_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "0.4*domain_authority + 0.4*field_coverage + 0.2*freshness."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "running", "done", "failed", "skipped"],
+      "default": "pending"
+    },
+    "override_robots": { "type": "boolean", "default": false },
+    "last_error": { "type": ["string", "null"] },
+    "started_at": { "type": ["string", "null"], "format": "date-time" },
+    "finished_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

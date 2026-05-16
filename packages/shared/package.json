@@ -1,0 +1,30 @@
+{
+  "name": "@poi/shared",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared JSON Schemas + generated types (TS + Python) untuk PoiScrapper v3",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schema/*": "./schema/*"
+  },
+  "files": [
+    "dist",
+    "schema"
+  ],
+  "scripts": {
+    "codegen": "node scripts/codegen.mjs",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist generated"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "^15.0.3",
+    "typescript": "^5.7.2"
+  }
+}
